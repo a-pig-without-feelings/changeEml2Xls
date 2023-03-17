@@ -20,54 +20,77 @@ public class FileUtil {
         Document parsedDoc = Jsoup.parse(file, "GBK");
 
         //02 读取EML简历各个字段，存储至对象中
-        Elements select1 = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlLxdiv >.Name");
-        System.out.println("-----------------姓名--------------------");
-        candidate.setName(select1.text());
-        Elements select2 = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlLxdiv >.Contact >ul >li");
-        System.out.println("------------------电话邮箱-------------------");
-        String[] s1 = select2.text().split(" ");
-        System.out.println(s1[0]);
-        System.out.println(s1[1]);
-        System.out.println("-------------------------------------------------------------------------------");
-        Elements select3 = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlJbxx >ul#jbxxUl >li");
-        String[] s = select3.text().split(" ");
-        candidate.setGender(s[0]);
-        candidate.setAge(s[1]);
-        candidate.setNation(s[2]);
-        candidate.setWorkYear(s[3]);
-        System.out.println("-------------------------------------------------------------------------------");
-        Elements select4 = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv > #adddiv.JlJbxx >ul");
+        /*------------------------------------------------------------------------------------------------------------*/
+        Elements name = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlLxdiv >.Name");
+        System.out.println(":::姓名：" + name.text());
 
-        System.out.println(select4.text());
-        System.out.println("-------------------------------------------------------------------------------");
-        Elements select5 = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv > #lastedudiv.JlJbxx >ul >li");
-        System.out.println(select5.text());//可以不要，后面还有
-        System.out.println("-------------------------------------------------------------------------------");
-        Elements select6 = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv > #lastedudiv.JlJbxx >ul >li");
+        Elements phone = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlLxdiv >.Contact >ul >li.First");
+        System.out.println(":::电话：" + phone.text().substring(phone.text().indexOf("电话：") + "电话：".length()));
 
-        /*求职意向*/
-        System.out.println("-------------------------------------------------------------------------------");
-        Elements select7 = parsedDoc.select("#Form1 > .JlDiv >.JlXmDiv > #jobintentiondiv.JlXmxqDiv >ul >li");
-        System.out.println(select7.text());
-        System.out.println("-------------------------------------------------------------------------------");
+        Elements email = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlLxdiv >.Contact >ul >li");
+        System.out.println(":::邮箱：" + email.text().substring(email.text().indexOf("邮箱：") + "邮箱：".length()));
 
-        /*工作/实习经历*/
-        Elements select8 = parsedDoc.select("#Form1 > .JlDiv >#wodiv.JlXmDiv");
-        System.out.println(select8.text());
-        System.out.println("-------------------------------------------------------------------------------");
+        Elements gender = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlJbxx >ul#jbxxUl >li.First");
+        System.out.println(":::性别：" + gender.text());
 
-        /*教育经历*/
-        Elements select9 = parsedDoc.select("#Form1 > .JlDiv >#edudiv.JlXmDiv");
-        System.out.println(select9.text());
+        Elements age = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlJbxx >ul#jbxxUl >li");
+        System.out.println(":::年龄：" + age.text().substring(2, 4));
+        System.out.println(":::民族：" + age.text().substring(6, 8));
 
-        System.out.println("-------------------------------------------------------------------------------");
-        /*培训经历*/
-        Elements select10 = parsedDoc.select("#Form1 > .JlDiv >#edudiv.JlXmDiv");
-        System.out.println(select9.text());
+        Elements workYear = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv >.JlJbxx >ul#jbxxUl >li.Jl_Fwb");
+        System.out.println(":::工作年限：" + workYear.text());
 
-        System.out.println("-------------------------------------------------------------------------------");
+        Elements censusRegister = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv > #adddiv.JlJbxx >ul");
+        System.out.println(":::户口：" + censusRegister.text().substring("户口所在地：".length(), censusRegister.text().indexOf("现居住地：")));
 
+        Elements currentResidence = parsedDoc.select("#Form1 > .JlDiv >.JlJbxxDiv > #adddiv.JlJbxx >ul");
+        System.out.println(":::现居住地：" + currentResidence.text().substring(currentResidence.text().indexOf("现居住地：") + "现居住地：".length()));
+        /*------------------------------------------------------------------------------------------------------------*/
 
+        Elements expectation = parsedDoc.select("#Form1 > .JlDiv >.JlXmDiv > #jobintentiondiv.JlXmxqDiv >ul >li");
+        System.out.println(":::期望工作地区：" + getSubString(expectation.text(), "期望工作地区", "期望从事职位"));
+        System.out.println(":::期望从事职位：" + getSubString(expectation.text(), "期望从事职位", "期望月薪范围"));
+        System.out.println(":::期望月薪范围：" + getSubString(expectation.text(), "期望月薪范围", "当前求职状态"));
+        System.out.println(":::当前求职状态：" + getSubString(expectation.text(), "当前求职状态", "期望工作性质"));
+        System.out.println(":::期望工作性质：" + getLastStr(expectation.text(), "期望工作性质："));
 
+        /*------------------------------------------------------------------------------------------------------------*/
+
+        Elements workExperience = parsedDoc.select("#Form1 > .JlDiv >#wodiv.JlXmDiv");
+        System.out.println(":::工作/实习经历：" + workExperience.text());
+
+        /*------------------------------------------------------------------------------------------------------------*/
+
+        Elements educationBackground = parsedDoc.select("#Form1 > .JlDiv >#edudiv.JlXmDiv");
+        System.out.println(":::教育经历：" + educationBackground.text());
+
+        /*------------------------------------------------------------------------------------------------------------*/
+
+        Elements trainingExperience = parsedDoc.select("#Form1 > .JlDiv >#traindiv.JlXmDiv");
+        System.out.println(":::培训经历：" + trainingExperience.text());
+
+        /*------------------------------------------------------------------------------------------------------------*/
+
+        Elements skillsCertificate = parsedDoc.select("#Form1 > .JlDiv >#cerdiv.JlXmDiv");
+        System.out.println(":::技能证书：" + skillsCertificate.text());
+
+    }
+
+    /**
+     * @param str    原字符串（待截取原串）
+     * @param posStr 指定字符串
+     * @return 截取截取指定字符串之之间的数据
+     */
+    public static String getSubString(String str, String posStr, String lastStr) {
+        return str.substring(str.indexOf(posStr), str.indexOf(lastStr));
+    }
+
+    /**
+     * @param str    原字符串（待截取原串）
+     * @param posStr 指定字符串
+     * @return 截取截取指定字符串之后的数据
+     */
+    public static String getLastStr(String str, String posStr) {
+        return str.substring(str.indexOf(posStr) + posStr.length());
     }
 }
